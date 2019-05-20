@@ -522,19 +522,17 @@ def do_SA(x, d, plot, N,KM=False):
         return D
 
 class SED_fitting:
-    def __init__(self,ν, F, Δ, model, constraints,σ=None):
+    def __init__(self,ν, F, Δ, model, constraints=None,σ=None):
         self.ν = ν
         self.Δ = Δ
         self.F = F
         self.m = model
         self.C = constraints
         self.σ = σ
-    def constrain_σ(self,θ):
-        return do_SA(self.F-self.m(self.ν,θ),self.Δ,False,'').WB.mean_σ
+    def constrain_σ(self,θ,SA_plot=False,SA_plot_title=''):
+        return do_SA(self.F-self.m(self.ν,θ),self.Δ,SA_plot,SA_plot_title).WB.mean_σ
     @staticmethod
     def χ2(ν,F, Δ, σ,model,θ):
-        if σ is None:
-            σ     = do_SA(F-model(ν,θ),Δ,False,'').WB.mean_σ
         Z     = ((F-model(ν,θ))/σ).astype(np.float64)
         χ_detected    = np.sum(Z[Δ==1]**2,axis=0)
         χ_nondetected = -2*np.sum(np.log(np.sqrt(np.pi/2.)*σ)+np.log1p(erf(Z[Δ==0]/np.sqrt(2.))),axis=0)
